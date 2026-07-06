@@ -1,0 +1,14 @@
+{
+  "name": "ai-plat-docs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-PLAT documentation web service",
+  "scripts": {
+    "build": "node scripts/build-site.js",
+    "start": "node server.js",
+    "dev": "node scripts/build-site.js && node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
