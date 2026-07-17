@@ -268,7 +268,18 @@ function renderPage(publicDocs) {
       if (partNumber === "02") {
         const [overview, ...chapters] = docs;
         const chapterLinks = chapters
-          .map((doc) => `<a class="toc-section-link part-chapter-link" href="#${doc.slug}" data-doc-target="${doc.slug}">${escapeHtml(doc.subtitle || doc.title)}</a>`)
+          .map((doc) => {
+            const sectionLinks = doc.headings
+              .filter((heading) => {
+                const isDocumentTitle = heading.level === 2 && heading.text === doc.subtitle;
+                const isClosingSection = /^下一步阅读|^下一步操作|^手册结束说明/.test(heading.text);
+                return !isDocumentTitle && !isClosingSection && (heading.level === 3 || heading.level === 4);
+              })
+              .slice(0, 14)
+              .map((heading) => `<a class="toc-link level-${heading.level}" href="#${heading.id}">${escapeHtml(heading.text)}</a>`)
+              .join("");
+            return `<a class="toc-section-link part-chapter-link" href="#${doc.slug}" data-doc-target="${doc.slug}">${escapeHtml(doc.subtitle || doc.title)}</a>${sectionLinks}`;
+          })
           .join("");
         return `<section class="nav-group">${navItem(overview, chapterLinks)}</section>`;
       }
