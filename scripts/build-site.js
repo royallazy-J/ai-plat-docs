@@ -66,7 +66,11 @@ function partInfo(file) {
     "02": "第二部分 · 核心功能操作指南",
     "03": "第三部分 · 场景教程与支持附录"
   };
-  return { number, title: titles[number] || "其他文档" };
+  return {
+    number,
+    title: titles[number] || "其他文档",
+    isOverview: new RegExp(`-${number}-00`).test(file)
+  };
 }
 
 function firstMatch(text, pattern) {
@@ -265,7 +269,7 @@ function renderPage(publicDocs) {
   const nav = Array.from(new Map(publicDocs.map((doc) => [doc.part.number, doc.part])).entries())
     .map(([partNumber]) => {
       const docs = publicDocs.filter((doc) => doc.part.number === partNumber);
-      if (partNumber === "02") {
+      if (docs[0]?.part.isOverview) {
         const [overview, ...chapters] = docs;
         const chapterLinks = chapters
           .map((doc) => {
@@ -287,12 +291,12 @@ function renderPage(publicDocs) {
     })
     .join("");
 
-  const coreDocs = publicDocs.filter((doc) => doc.part.number === "02");
-  const nextCoreDoc = new Map(coreDocs.map((doc, index) => [doc.slug, coreDocs[index + 1] || publicDocs.find((item) => item.part.number === "03")]));
+  const guideDocs = publicDocs.filter((doc) => ["01", "02", "03"].includes(doc.part.number));
+  const nextGuideDoc = new Map(guideDocs.map((doc, index) => [doc.slug, guideDocs[index + 1]]));
 
   const articles = publicDocs
     .map((doc, index) => {
-      const next = nextCoreDoc.get(doc.slug);
+      const next = nextGuideDoc.get(doc.slug);
       const nextLink = next
         ? `<nav class="doc-pagination" aria-label="下一小节"><a href="#${next.slug}" data-doc-target="${next.slug}"><span>下一小节</span><strong>${escapeHtml(next.subtitle || next.title)}</strong><b>→</b></a></nav>`
         : "";
@@ -301,6 +305,7 @@ function renderPage(publicDocs) {
     .join("");
 
   const cards = publicDocs
+    .filter((doc) => doc.part.isOverview)
     .map((doc, index) => `<a class="quick-card" href="#${doc.slug}" data-doc-target="${doc.slug}"><span class="card-number">0${index + 1}</span><span class="card-title">${escapeHtml(doc.subtitle || doc.title)}</span><small>${escapeHtml(doc.summary)}</small><b>开始阅读 <i>→</i></b></a>`)
     .join("");
 
