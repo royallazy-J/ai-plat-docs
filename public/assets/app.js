@@ -1,5 +1,8 @@
 const panels = Array.from(document.querySelectorAll("[data-doc]"));
-const tabs = Array.from(document.querySelectorAll("[data-doc-target]"));
+const navDocTabs = Array.from(document.querySelectorAll(".sidebar .doc-tab[data-doc-target]"));
+const navChapterLinks = Array.from(document.querySelectorAll(".sidebar .part-chapter-link[data-doc-target]"));
+const navSectionLinks = Array.from(document.querySelectorAll(".sidebar .toc-link[data-section-target]"));
+const docLinks = Array.from(document.querySelectorAll("[data-doc-target]"));
 const searchInput = document.getElementById("searchInput");
 const searchResults = document.getElementById("searchResults");
 const lightbox = document.getElementById("lightbox");
@@ -9,13 +12,41 @@ const sidebarClose = document.getElementById("sidebarClose");
 const sidebarScrim = document.getElementById("sidebarScrim");
 const readingProgress = document.getElementById("readingProgress");
 let searchIndex = [];
+let activeSidebarTarget = "";
 
 function showDoc(slug, shouldFocus = false) {
   const target = panels.find((panel) => panel.dataset.doc === slug) || panels[0];
   panels.forEach((panel) => panel.classList.toggle("active", panel === target));
-  tabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.docTarget === target.dataset.doc));
+  navDocTabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.docTarget === target.dataset.doc));
+  navChapterLinks.forEach((link) => link.classList.toggle("active", link.dataset.docTarget === target.dataset.doc));
+  syncSidebarSection();
   closeSidebar();
   if (shouldFocus) target.focus({ preventScroll: true });
+}
+
+function syncSidebarSection() {
+  const activePanel = panels.find((panel) => panel.classList.contains("active"));
+  if (!activePanel) return;
+
+  const hash = decodeURIComponent(location.hash.replace("#", ""));
+  const hashHeading = document.getElementById(hash);
+  const headings = Array.from(activePanel.querySelectorAll("h2[id], h3[id], h4[id]"));
+  const currentHeading = hashHeading?.closest("[data-doc]") === activePanel && hashHeading.matches("h2, h3, h4")
+    ? hashHeading
+    : headings.filter((heading) => heading.getBoundingClientRect().top <= 132).at(-1);
+
+  navSectionLinks.forEach((link) => {
+    link.classList.toggle("active", link.dataset.sectionTarget === currentHeading?.id);
+  });
+
+  const activeLink = currentHeading
+    ? navSectionLinks.find((link) => link.dataset.sectionTarget === currentHeading.id)
+    : navChapterLinks.find((link) => link.classList.contains("active"));
+  const targetId = activeLink?.dataset.sectionTarget || activeLink?.dataset.docTarget || "";
+  if (activeLink && targetId !== activeSidebarTarget) {
+    activeSidebarTarget = targetId;
+    activeLink.scrollIntoView({ block: "nearest" });
+  }
 }
 
 function currentHashDoc() {
@@ -30,7 +61,7 @@ function currentHashDoc() {
 window.addEventListener("hashchange", () => showDoc(currentHashDoc()));
 showDoc(currentHashDoc());
 
-tabs.forEach((tab) => {
+docLinks.forEach((tab) => {
   tab.addEventListener("click", () => {
     const slug = tab.dataset.docTarget;
     showDoc(slug, true);
@@ -114,6 +145,7 @@ document.addEventListener("keydown", (event) => {
 window.addEventListener("scroll", () => {
   const height = document.documentElement.scrollHeight - window.innerHeight;
   if (readingProgress) readingProgress.style.width = height > 0 ? `${Math.min(100, window.scrollY / height * 100)}%` : "0";
+  syncSidebarSection();
 }, { passive: true });
 
 function escapeHtml(value) {
