@@ -3,12 +3,20 @@ const tabs = Array.from(document.querySelectorAll("[data-doc-target]"));
 const searchInput = document.getElementById("searchInput");
 const searchResults = document.getElementById("searchResults");
 const lightbox = document.getElementById("lightbox");
+const pageToc = document.getElementById("pageToc");
+const sidebar = document.getElementById("sidebar");
+const menuButton = document.getElementById("menuButton");
+const sidebarClose = document.getElementById("sidebarClose");
+const sidebarScrim = document.getElementById("sidebarScrim");
+const readingProgress = document.getElementById("readingProgress");
 let searchIndex = [];
 
 function showDoc(slug, shouldFocus = false) {
   const target = panels.find((panel) => panel.dataset.doc === slug) || panels[0];
   panels.forEach((panel) => panel.classList.toggle("active", panel === target));
   tabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.docTarget === target.dataset.doc));
+  renderPageToc(target);
+  closeSidebar();
   if (shouldFocus) target.focus({ preventScroll: true });
 }
 
@@ -30,6 +38,22 @@ tabs.forEach((tab) => {
     showDoc(slug, true);
   });
 });
+
+function renderPageToc(panel) {
+  if (!pageToc || !panel) return;
+  const headings = Array.from(panel.querySelectorAll("h2, h3"));
+  pageToc.innerHTML = headings.map((heading) => `<a class="level-${heading.tagName === "H3" ? "3" : "2"}" href="#${heading.id}">${escapeHtml(heading.textContent)}</a>`).join("");
+}
+
+function setSidebar(open) {
+  sidebar?.classList.toggle("open", open);
+  sidebarScrim?.classList.toggle("open", open);
+  menuButton?.setAttribute("aria-expanded", String(open));
+}
+function closeSidebar() { setSidebar(false); }
+menuButton?.addEventListener("click", () => setSidebar(!sidebar.classList.contains("open")));
+sidebarClose?.addEventListener("click", closeSidebar);
+sidebarScrim?.addEventListener("click", closeSidebar);
 
 fetch("search-index.json")
   .then((response) => response.json())
@@ -81,11 +105,24 @@ document.addEventListener("click", (event) => {
 });
 
 document.addEventListener("keydown", (event) => {
+  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+    event.preventDefault();
+    searchInput?.focus();
+  }
+  if (event.key === "/" && document.activeElement?.tagName !== "INPUT") {
+    event.preventDefault();
+    searchInput?.focus();
+  }
   if (event.key === "Escape" && !lightbox.hidden) {
     lightbox.hidden = true;
     lightbox.querySelector("img").src = "";
   }
 });
+
+window.addEventListener("scroll", () => {
+  const height = document.documentElement.scrollHeight - window.innerHeight;
+  if (readingProgress) readingProgress.style.width = height > 0 ? `${Math.min(100, window.scrollY / height * 100)}%` : "0";
+}, { passive: true });
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (char) => ({

@@ -8,42 +8,39 @@
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
+  <div class="reading-progress" aria-hidden="true"><span id="readingProgress"></span></div>
   <header class="topbar">
+    <button class="menu-button" id="menuButton" type="button" aria-label="打开文档目录" aria-expanded="false">☰</button>
     <a class="brand" href="#doc-1" data-doc-target="doc-1" aria-label="AI-PLAT 文档首页">
-      <span class="brand-mark">AI</span>
-      <span><strong>AI-PLAT</strong><small>用户文档中心</small></span>
+      <span class="brand-mark"><i></i><i></i><i></i></span>
+      <span><strong>AI-PLAT</strong><small>Documentation</small></span>
     </a>
     <div class="top-actions">
       <label class="search" aria-label="搜索文档">
-        <span>搜索</span>
-        <input id="searchInput" type="search" placeholder="输入关键词，如 数据集、部署、工作流">
+        <span class="search-icon">⌕</span>
+        <input id="searchInput" type="search" placeholder="搜索文档">
+        <kbd>⌘ K</kbd>
       </label>
       <a class="platform-link" href="http://117.143.89.78:30000/#/login" target="_blank" rel="noopener">进入平台</a>
     </div>
   </header>
 
   <div class="layout">
-    <aside class="sidebar">
-      <div class="side-title">文档目录</div>
-      <section class="nav-doc"><a class="doc-tab" href="#doc-1" data-doc-target="doc-1"><span>第一部分：使用准备与平台入门</span></a><div class="toc"><a class="toc-link level-2" href="#doc-1-第一部分-使用准备与平台入门">第一部分：使用准备与平台入门</a><a class="toc-link level-2" href="#doc-1-1-文档说明">1. 文档说明</a><a class="toc-link level-3" href="#doc-1-1-1-文档目标">1.1 文档目标</a><a class="toc-link level-3" href="#doc-1-1-2-平台简介">1.2 平台简介</a><a class="toc-link level-3" href="#doc-1-1-3-核心功能模块">1.3 核心功能模块</a><a class="toc-link level-3" href="#doc-1-1-4-适用场景">1.4 适用场景</a><a class="toc-link level-2" href="#doc-1-2-适用对象">2. 适用对象</a><a class="toc-link level-3" href="#doc-1-2-1-企业管理员">2.1 企业管理员</a><a class="toc-link level-3" href="#doc-1-2-2-ai-生产工程师">2.2 AI 生产工程师</a><a class="toc-link level-3" href="#doc-1-2-3-ai-运维工程师">2.3 AI 运维工程师</a><a class="toc-link level-3" href="#doc-1-2-4-普通业务用户">2.4 普通业务用户</a><a class="toc-link level-2" href="#doc-1-3-使用前准备">3. 使用前准备</a><a class="toc-link level-3" href="#doc-1-3-1-账号准备">3.1 账号准备</a><a class="toc-link level-3" href="#doc-1-3-2-浏览器与网络环境">3.2 浏览器与网络环境</a><a class="toc-link level-3" href="#doc-1-3-3-数据准备">3.3 数据准备</a><a class="toc-link level-3" href="#doc-1-3-4-使用权限准备">3.4 使用权限准备</a></div></section><section class="nav-doc"><a class="doc-tab" href="#doc-2" data-doc-target="doc-2"><span>第二部分：核心功能操作指南</span></a><div class="toc"><a class="toc-link level-2" href="#doc-2-第二部分-核心功能操作指南">第二部分：核心功能操作指南</a><a class="toc-link level-2" href="#doc-2-1-核心功能快速上手">1. 核心功能快速上手</a><a class="toc-link level-3" href="#doc-2-1-1-新建项目并添加成员">1.1 新建项目并添加成员</a><a class="toc-link level-3" href="#doc-2-1-2-获取算法组件">1.2 获取算法组件</a><a class="toc-link level-3" href="#doc-2-1-3-上传数据资源">1.3 上传数据资源</a><a class="toc-link level-3" href="#doc-2-1-4-上传模型资源">1.4 上传模型资源</a><a class="toc-link level-3" href="#doc-2-1-5-下载数据集或模型">1.5 下载数据集或模型</a><a class="toc-link level-3" href="#doc-2-1-6-创建标签标注任务">1.6 创建标签标注任务</a><a class="toc-link level-3" href="#doc-2-1-7-使用-labeling-标注工具">1.7 使用 Labeling 标注工具</a><a class="toc-link level-3" href="#doc-2-1-8-创建图像处理工作流">1.8 创建图像处理工作流</a><a class="toc-link level-3" href="#doc-2-1-9-创建模型训练工作流">1.9 创建模型训练工作流</a><a class="toc-link level-3" href="#doc-2-1-10-创建模型预测工作流">1.10 创建模型预测工作流</a><a class="toc-link level-3" href="#doc-2-1-11-运行配置与设备选择">1.11 运行配置与设备选择</a><a class="toc-link level-3" href="#doc-2-1-12-发布模型">1.12 发布模型</a><a class="toc-link level-3" href="#doc-2-1-13-快速部署模型">1.13 快速部署模型</a><a class="toc-link level-3" href="#doc-2-1-14-生产部署">1.14 生产部署</a></div></section><section class="nav-doc"><a class="doc-tab" href="#doc-3" data-doc-target="doc-3"><span>第三部分：场景教程与支持附录</span></a><div class="toc"><a class="toc-link level-2" href="#doc-3-第三部分-场景教程与支持附录">第三部分：场景教程与支持附录</a><a class="toc-link level-2" href="#doc-3-1-典型场景操作教程">1. 典型场景操作教程</a><a class="toc-link level-3" href="#doc-3-1-1-场景一-完成一次缺陷检测模型训练验证">1.1 场景一：完成一次缺陷检测模型训练验证</a><a class="toc-link level-3" href="#doc-3-1-2-场景二-完成模型预测与效果检查">1.2 场景二：完成模型预测与效果检查</a><a class="toc-link level-3" href="#doc-3-1-3-场景三-快速部署模型进行-demo-验证">1.3 场景三：快速部署模型进行 Demo 验证</a><a class="toc-link level-3" href="#doc-3-1-4-场景四-生产环境部署和运维">1.4 场景四：生产环境部署和运维</a><a class="toc-link level-2" href="#doc-3-2-常见问题-faq">2. 常见问题 FAQ</a><a class="toc-link level-3" href="#doc-3-2-1-登录失败怎么办">2.1 登录失败怎么办？</a><a class="toc-link level-3" href="#doc-3-2-2-注册后收不到验证邮件怎么办">2.2 注册后收不到验证邮件怎么办？</a><a class="toc-link level-3" href="#doc-3-2-3-找不到项目怎么办">2.3 找不到项目怎么办？</a><a class="toc-link level-3" href="#doc-3-2-4-无法新建项目怎么办">2.4 无法新建项目怎么办？</a><a class="toc-link level-3" href="#doc-3-2-5-找不到需要的组件怎么办">2.5 找不到需要的组件怎么办？</a><a class="toc-link level-3" href="#doc-3-2-6-上传数据集失败怎么办">2.6 上传数据集失败怎么办？</a><a class="toc-link level-3" href="#doc-3-2-7-标签标注任务打不开怎么办">2.7 标签标注任务打不开怎么办？</a><a class="toc-link level-3" href="#doc-3-2-8-工作流无法运行怎么办">2.8 工作流无法运行怎么办？</a><a class="toc-link level-3" href="#doc-3-2-9-本地上传模型无法用于预测怎么办">2.9 本地上传模型无法用于预测怎么办？</a></div></section>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-heading"><span>AI-PLAT 用户手册</span><button class="sidebar-close" id="sidebarClose" type="button" aria-label="关闭目录">×</button></div>
+      <div class="side-title">开始使用</div>
+      <section class="nav-doc"><a class="doc-tab" href="#doc-1" data-doc-target="doc-1"><span>第一部分：使用准备与平台入门</span><b>›</b></a><div class="toc"><a class="toc-link level-2" href="#doc-1-第一部分-使用准备与平台入门">第一部分：使用准备与平台入门</a><a class="toc-link level-2" href="#doc-1-1-文档说明">1. 文档说明</a><a class="toc-link level-3" href="#doc-1-1-1-文档目标">1.1 文档目标</a><a class="toc-link level-3" href="#doc-1-1-2-平台简介">1.2 平台简介</a><a class="toc-link level-3" href="#doc-1-1-3-核心功能模块">1.3 核心功能模块</a><a class="toc-link level-3" href="#doc-1-1-4-适用场景">1.4 适用场景</a><a class="toc-link level-2" href="#doc-1-2-适用对象">2. 适用对象</a><a class="toc-link level-3" href="#doc-1-2-1-企业管理员">2.1 企业管理员</a><a class="toc-link level-3" href="#doc-1-2-2-ai-生产工程师">2.2 AI 生产工程师</a><a class="toc-link level-3" href="#doc-1-2-3-ai-运维工程师">2.3 AI 运维工程师</a><a class="toc-link level-3" href="#doc-1-2-4-普通业务用户">2.4 普通业务用户</a><a class="toc-link level-2" href="#doc-1-3-使用前准备">3. 使用前准备</a><a class="toc-link level-3" href="#doc-1-3-1-账号准备">3.1 账号准备</a><a class="toc-link level-3" href="#doc-1-3-2-浏览器与网络环境">3.2 浏览器与网络环境</a><a class="toc-link level-3" href="#doc-1-3-3-数据准备">3.3 数据准备</a><a class="toc-link level-3" href="#doc-1-3-4-使用权限准备">3.4 使用权限准备</a></div></section><section class="nav-doc"><a class="doc-tab" href="#doc-2" data-doc-target="doc-2"><span>第二部分：核心功能操作指南</span><b>›</b></a><div class="toc"><a class="toc-link level-2" href="#doc-2-第二部分-核心功能操作指南">第二部分：核心功能操作指南</a><a class="toc-link level-2" href="#doc-2-1-核心功能快速上手">1. 核心功能快速上手</a><a class="toc-link level-3" href="#doc-2-1-1-新建项目并添加成员">1.1 新建项目并添加成员</a><a class="toc-link level-3" href="#doc-2-1-2-获取算法组件">1.2 获取算法组件</a><a class="toc-link level-3" href="#doc-2-1-3-上传数据资源">1.3 上传数据资源</a><a class="toc-link level-3" href="#doc-2-1-4-上传模型资源">1.4 上传模型资源</a><a class="toc-link level-3" href="#doc-2-1-5-下载数据集或模型">1.5 下载数据集或模型</a><a class="toc-link level-3" href="#doc-2-1-6-创建标签标注任务">1.6 创建标签标注任务</a><a class="toc-link level-3" href="#doc-2-1-7-使用-labeling-标注工具">1.7 使用 Labeling 标注工具</a><a class="toc-link level-3" href="#doc-2-1-8-创建图像处理工作流">1.8 创建图像处理工作流</a><a class="toc-link level-3" href="#doc-2-1-9-创建模型训练工作流">1.9 创建模型训练工作流</a><a class="toc-link level-3" href="#doc-2-1-10-创建模型预测工作流">1.10 创建模型预测工作流</a><a class="toc-link level-3" href="#doc-2-1-11-运行配置与设备选择">1.11 运行配置与设备选择</a><a class="toc-link level-3" href="#doc-2-1-12-发布模型">1.12 发布模型</a><a class="toc-link level-3" href="#doc-2-1-13-快速部署模型">1.13 快速部署模型</a><a class="toc-link level-3" href="#doc-2-1-14-生产部署">1.14 生产部署</a></div></section><section class="nav-doc"><a class="doc-tab" href="#doc-3" data-doc-target="doc-3"><span>第三部分：场景教程与支持附录</span><b>›</b></a><div class="toc"><a class="toc-link level-2" href="#doc-3-第三部分-场景教程与支持附录">第三部分：场景教程与支持附录</a><a class="toc-link level-2" href="#doc-3-1-典型场景操作教程">1. 典型场景操作教程</a><a class="toc-link level-3" href="#doc-3-1-1-场景一-完成一次缺陷检测模型训练验证">1.1 场景一：完成一次缺陷检测模型训练验证</a><a class="toc-link level-3" href="#doc-3-1-2-场景二-完成模型预测与效果检查">1.2 场景二：完成模型预测与效果检查</a><a class="toc-link level-3" href="#doc-3-1-3-场景三-快速部署模型进行-demo-验证">1.3 场景三：快速部署模型进行 Demo 验证</a><a class="toc-link level-3" href="#doc-3-1-4-场景四-生产环境部署和运维">1.4 场景四：生产环境部署和运维</a><a class="toc-link level-2" href="#doc-3-2-常见问题-faq">2. 常见问题 FAQ</a><a class="toc-link level-3" href="#doc-3-2-1-登录失败怎么办">2.1 登录失败怎么办？</a><a class="toc-link level-3" href="#doc-3-2-2-注册后收不到验证邮件怎么办">2.2 注册后收不到验证邮件怎么办？</a><a class="toc-link level-3" href="#doc-3-2-3-找不到项目怎么办">2.3 找不到项目怎么办？</a><a class="toc-link level-3" href="#doc-3-2-4-无法新建项目怎么办">2.4 无法新建项目怎么办？</a><a class="toc-link level-3" href="#doc-3-2-5-找不到需要的组件怎么办">2.5 找不到需要的组件怎么办？</a><a class="toc-link level-3" href="#doc-3-2-6-上传数据集失败怎么办">2.6 上传数据集失败怎么办？</a><a class="toc-link level-3" href="#doc-3-2-7-标签标注任务打不开怎么办">2.7 标签标注任务打不开怎么办？</a><a class="toc-link level-3" href="#doc-3-2-8-工作流无法运行怎么办">2.8 工作流无法运行怎么办？</a><a class="toc-link level-3" href="#doc-3-2-9-本地上传模型无法用于预测怎么办">2.9 本地上传模型无法用于预测怎么办？</a></div></section>
+      <div class="sidebar-footer"><span class="status-dot"></span> 文档持续更新中</div>
     </aside>
+    <button class="sidebar-scrim" id="sidebarScrim" type="button" aria-label="关闭目录"></button>
 
     <main class="content">
-      <section class="hero">
-        <div>
-          <p class="eyebrow">AI-PLAT Documentation</p>
-          <h1>面向客户试用、培训交付与售后支持的统一文档入口</h1>
-          <p>覆盖试用准备、核心功能操作、典型场景教程和常见问题。后续新增 Markdown 手册和截图后，重新构建即可发布。</p>
-        </div>
-        <div class="hero-panel">
-          <span>当前收录</span>
-          <strong>3</strong>
-          <small>份公开手册</small>
-        </div>
-      </section>
-
-      <section class="quick-grid" aria-label="快速入口">
-        <a class="quick-card" href="#doc-1" data-doc-target="doc-1"><span>第一部分：使用准备与平台入门</span><small>AI PLAT用户手册 第一部分：使用准备与平台入门 本册是 AI PLAT 用户手册的第一部分，适合首次接触平台的企业客户阅读。通过本册，读者可以了解平台定位、适用对象、使用前准备、账号登录配置以及项目入口。 阅读衔接：本册完成后，建议继续阅读《AI PLAT用户手册（二）：核心功能操作指南》，进入数据、组件、工作流、模型和部署等实际操</small></a><a class="quick-card" href="#doc-2" data-doc-target="doc-2"><span>第二部分：核心功能操作指南</span><small>AI PLAT用户手册 第二部分：核心功能操作指南 本册是 AI PLAT 用户手册的第二部分，适合已经完成账号登录、项目进入和基础环境确认的用户阅读。通过本册，读者可以按照核心功能流程完成项目、组件、数据、标注、工作流、训练、预测、发布和部署操作。 阅读衔接：阅读本册前，建议已完成《AI PLAT用户手册（一）：使用准备与平台入门》中的</small></a><a class="quick-card" href="#doc-3" data-doc-target="doc-3"><span>第三部分：场景教程与支持附录</span><small>AI PLAT用户手册 第三部分：场景教程与支持附录 本册是 AI PLAT 用户手册的第三部分，适合在完成平台基础操作后，用于场景化演示、培训复盘、常见问题处理和交付收尾。 阅读衔接：阅读本册前，建议已完成《AI PLAT用户手册（二）：核心功能操作指南》中的核心操作流程；本册可作为交付验收、客户答疑和后续支持的参考材料。 1. 典型场</small></a>
+      <section class="overview" id="overview">
+        <p class="eyebrow">AI-PLAT DOCUMENTATION</p>
+        <h1>从这里开始使用<br>AI-PLAT</h1>
+        <p class="overview-copy">围绕试用准备、数据管理、模型训练、工作流与部署，为客户试用、交付培训和日常支持准备的一站式操作文档。</p>
+        <section class="quick-grid" aria-label="快速入口"><a class="quick-card" href="#doc-1" data-doc-target="doc-1"><span class="card-number">01</span><span class="card-title">第一部分：使用准备与平台入门</span><small>AI PLAT用户手册 第一部分：使用准备与平台入门 本册是 AI PLAT 用户手册的第一部分，适合首次接触平台的企业客户阅读。通过本册，读者可以了解平台定位、适用对象、使用前准备、账号登录配置以及项目入口。 阅读衔接：本册完成后，建议继续阅读《AI PLAT用户手册（二）：核心功能操作指南》，进入数据、组件、工作流、模型和部署等实际操</small><b>开始阅读 <i>→</i></b></a><a class="quick-card" href="#doc-2" data-doc-target="doc-2"><span class="card-number">02</span><span class="card-title">第二部分：核心功能操作指南</span><small>AI PLAT用户手册 第二部分：核心功能操作指南 本册是 AI PLAT 用户手册的第二部分，适合已经完成账号登录、项目进入和基础环境确认的用户阅读。通过本册，读者可以按照核心功能流程完成项目、组件、数据、标注、工作流、训练、预测、发布和部署操作。 阅读衔接：阅读本册前，建议已完成《AI PLAT用户手册（一）：使用准备与平台入门》中的</small><b>开始阅读 <i>→</i></b></a><a class="quick-card" href="#doc-3" data-doc-target="doc-3"><span class="card-number">03</span><span class="card-title">第三部分：场景教程与支持附录</span><small>AI PLAT用户手册 第三部分：场景教程与支持附录 本册是 AI PLAT 用户手册的第三部分，适合在完成平台基础操作后，用于场景化演示、培训复盘、常见问题处理和交付收尾。 阅读衔接：阅读本册前，建议已完成《AI PLAT用户手册（二）：核心功能操作指南》中的核心操作流程；本册可作为交付验收、客户答疑和后续支持的参考材料。 1. 典型场</small><b>开始阅读 <i>→</i></b></a></section>
+        <div class="overview-note"><strong>快速提示</strong><span>使用顶部搜索，或从左侧目录直接进入对应操作步骤。</span></div>
       </section>
 
       <section id="searchResults" class="search-results" hidden></section>
@@ -532,6 +529,7 @@
 <p>至此，AI-PLAT 用户手册的三部分内容已全部覆盖：第一册用于完成使用准备和平台入门，第二册用于完成核心功能操作，第三册用于场景演示、问题排查和交付收尾。后续如客户进入更深入的生产部署、算法开发或接口调用阶段，可基于本册“后续可补充内容”继续扩展高级使用手册。</p></article>
       </section>
     </main>
+    <aside class="page-toc" aria-label="本页目录"><p>本页内容</p><nav id="pageToc"></nav></aside>
   </div>
 
   <div class="lightbox" id="lightbox" hidden>
