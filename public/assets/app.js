@@ -41,8 +41,14 @@ tabs.forEach((tab) => {
 
 function renderPageToc(panel) {
   if (!pageToc || !panel) return;
-  const headings = Array.from(panel.querySelectorAll("h3, h4"));
-  pageToc.innerHTML = headings.map((heading) => `<a class="level-${heading.tagName === "H4" ? "3" : "2"}" href="#${heading.id}">${escapeHtml(heading.textContent)}</a>`).join("");
+  const documentTitle = panel.querySelector("h2")?.textContent || "";
+  const headings = Array.from(panel.querySelectorAll("h2, h3, h4")).filter((heading) => {
+    return heading.textContent !== documentTitle && !/^下一步阅读|^下一步操作|^手册结束说明/.test(heading.textContent);
+  });
+  pageToc.innerHTML = headings.map((heading) => {
+    const level = heading.tagName === "H2" ? "1" : heading.tagName === "H3" ? "2" : "3";
+    return `<a class="level-${level}" href="#${heading.id}">${escapeHtml(heading.textContent)}</a>`;
+  }).join("");
 }
 
 function setSidebar(open) {

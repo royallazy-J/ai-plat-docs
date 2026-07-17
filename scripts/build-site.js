@@ -248,9 +248,16 @@ function buildSearchIndex(publicDocs) {
 function renderPage(publicDocs) {
   const navItem = (doc, childLinks = "") => {
       const headingLinks = doc.headings
-        .filter((heading) => heading.level === 3 || heading.level === 4)
+        .filter((heading) => {
+          const isDocumentTitle = heading.level === 2 && heading.text === doc.subtitle;
+          const isClosingSection = /^下一步阅读|^下一步操作|^手册结束说明/.test(heading.text);
+          return !isDocumentTitle && !isClosingSection && (heading.level === 2 || heading.level === 3 || heading.level === 4);
+        })
         .slice(0, 14)
-        .map((heading) => `<a class="toc-link level-${heading.level}" href="#${heading.id}">${escapeHtml(heading.text)}</a>`)
+        .map((heading) => {
+          const className = heading.level === 2 ? "toc-section-link" : `toc-link level-${heading.level}`;
+          return `<a class="${className}" href="#${heading.id}">${escapeHtml(heading.text)}</a>`;
+        })
         .join("");
       return `<section class="nav-doc"><a class="doc-tab" href="#${doc.slug}" data-doc-target="${doc.slug}"><span>${escapeHtml(doc.subtitle || doc.title)}</span><b>›</b></a><div class="toc">${childLinks || headingLinks}</div></section>`;
     };
@@ -359,7 +366,7 @@ function styles() {
 @media(max-width:520px){.brand-wordmark{font-size:15px}.brand-divider,.brand-label{display:none}.search{width:auto;flex:1}.search kbd{display:none}.search input{font-size:12px}.overview h1{font-size:31px}.overview-copy{font-size:15px}.content{padding:30px 16px 58px}.doc-panel h1{font-size:29px}.doc-panel h2{font-size:21px}.doc-panel h3{font-size:17px}.doc-panel p,.doc-panel li{font-size:14px}}
 
 /* Match the AI-PLAT platform's teal-to-blue wordmark and primary action treatment. */
-.platform-link{border:0;background:linear-gradient(90deg,var(--teal),var(--brand));box-shadow:0 5px 12px rgba(71,138,229,.18);color:#fff}.platform-link:hover{border-color:transparent;color:#fff;box-shadow:0 7px 16px rgba(71,138,229,.28)}.search:focus-within{border-color:#9ed8d4}.doc-tab.active,.doc-tab:hover{color:#3486c9;background:linear-gradient(90deg,#effaf8,#f2f7ff)}.toc-link.active{color:var(--brand);font-weight:700}.part-chapter-link{padding:5px 0;font-size:13px}.eyebrow{color:var(--teal)}.quick-card:hover{border-color:#b9dcdf;box-shadow:0 12px 30px rgba(52,147,174,.09)}.card-number{color:#398ea6}.overview-note{background:#f7fbfb}.search-results{border-color:#cfe9eb;background:#f6fbfc}.result-item{border-color:#dfedf0}.result-item strong{color:#2e5868}.nav-group{margin:0 0 28px}
+.platform-link{border:0;background:linear-gradient(90deg,var(--teal),var(--brand));box-shadow:0 5px 12px rgba(71,138,229,.18);color:#fff}.platform-link:hover{border-color:transparent;color:#fff;box-shadow:0 7px 16px rgba(71,138,229,.28)}.search:focus-within{border-color:#9ed8d4}.doc-tab.active,.doc-tab:hover{color:#3486c9;background:linear-gradient(90deg,#effaf8,#f2f7ff)}.toc-section-link{display:block;margin:11px 0 4px;color:#3c4b61;font-size:12px;font-weight:800;line-height:1.45}.toc-section-link:hover,.toc-section-link.active{color:var(--brand)}.toc-link.active{color:var(--brand);font-weight:700}.part-chapter-link{padding:5px 0;font-size:13px}.page-toc a.level-1{margin-top:10px;color:#4b5565;font-weight:750}.page-toc a.level-2{padding-left:8px}.eyebrow{color:var(--teal)}.quick-card:hover{border-color:#b9dcdf;box-shadow:0 12px 30px rgba(52,147,174,.09)}.card-number{color:#398ea6}.overview-note{background:#f7fbfb}.search-results{border-color:#cfe9eb;background:#f6fbfc}.result-item{border-color:#dfedf0}.result-item strong{color:#2e5868}.nav-group{margin:0 0 28px}
 `;
 }
 
@@ -407,8 +414,14 @@ tabs.forEach((tab) => {
 
 function renderPageToc(panel) {
   if (!pageToc || !panel) return;
-  const headings = Array.from(panel.querySelectorAll("h3, h4"));
-  pageToc.innerHTML = headings.map((heading) => \`<a class="level-\${heading.tagName === "H4" ? "3" : "2"}" href="#\${heading.id}">\${escapeHtml(heading.textContent)}</a>\`).join("");
+  const documentTitle = panel.querySelector("h2")?.textContent || "";
+  const headings = Array.from(panel.querySelectorAll("h2, h3, h4")).filter((heading) => {
+    return heading.textContent !== documentTitle && !/^下一步阅读|^下一步操作|^手册结束说明/.test(heading.textContent);
+  });
+  pageToc.innerHTML = headings.map((heading) => {
+    const level = heading.tagName === "H2" ? "1" : heading.tagName === "H3" ? "2" : "3";
+    return \`<a class="level-\${level}" href="#\${heading.id}">\${escapeHtml(heading.textContent)}</a>\`;
+  }).join("");
 }
 
 function setSidebar(open) {
