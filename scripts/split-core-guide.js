@@ -18,7 +18,7 @@ function section(number) {
 }
 
 function document(title, intro, body, next) {
-  return `# AI-PLAT 用户手册\n\n## 第二部分 · ${title}\n\n${intro}\n\n---\n\n${body.trim()}\n\n---\n\n## 下一步操作\n\n${next}\n`;
+  return `# AI-PLAT 用户手册\n\n## ${title}\n\n${intro}\n\n---\n\n${body.trim()}\n\n---\n\n## 下一步操作\n\n${next}\n`;
 }
 
 function replaceHeading(body, from, to) {

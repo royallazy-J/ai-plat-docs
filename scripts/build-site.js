@@ -47,6 +47,7 @@ function readDoc(file, index) {
 
   return {
     file,
+    part: partInfo(file),
     slug,
     title,
     subtitle,
@@ -55,6 +56,17 @@ function readDoc(file, index) {
     html,
     text: plainText(source)
   };
+}
+
+function partInfo(file) {
+  const match = file.match(/^AI-PLAT用户手册-(\d{2})/);
+  const number = match ? match[1] : "";
+  const titles = {
+    "01": "第一部分 · 试用准备与平台入门",
+    "02": "第二部分 · 核心功能操作指南",
+    "03": "第三部分 · 场景教程与支持附录"
+  };
+  return { number, title: titles[number] || "其他文档" };
 }
 
 function firstMatch(text, pattern) {
@@ -234,14 +246,19 @@ function buildSearchIndex(publicDocs) {
 }
 
 function renderPage(publicDocs) {
-  const nav = publicDocs
-    .map((doc) => {
+  const navItem = (doc) => {
       const headingLinks = doc.headings
         .filter((heading) => heading.level === 3 || heading.level === 4)
         .slice(0, 14)
         .map((heading) => `<a class="toc-link level-${heading.level}" href="#${heading.id}">${escapeHtml(heading.text)}</a>`)
         .join("");
       return `<section class="nav-doc"><a class="doc-tab" href="#${doc.slug}" data-doc-target="${doc.slug}"><span>${escapeHtml(doc.subtitle || doc.title)}</span><b>›</b></a><div class="toc">${headingLinks}</div></section>`;
+    };
+
+  const nav = Array.from(new Map(publicDocs.map((doc) => [doc.part.number, doc.part])).entries())
+    .map(([partNumber, part]) => {
+      const docs = publicDocs.filter((doc) => doc.part.number === partNumber);
+      return `<section class="nav-group"><p class="nav-group-title">${escapeHtml(part.title)}</p>${docs.map(navItem).join("")}</section>`;
     })
     .join("");
 
@@ -335,7 +352,7 @@ function styles() {
 @media(max-width:520px){.brand-wordmark{font-size:15px}.brand-divider,.brand-label{display:none}.search{width:auto;flex:1}.search kbd{display:none}.search input{font-size:12px}.overview h1{font-size:31px}.overview-copy{font-size:15px}.content{padding:30px 16px 58px}.doc-panel h1{font-size:29px}.doc-panel h2{font-size:21px}.doc-panel h3{font-size:17px}.doc-panel p,.doc-panel li{font-size:14px}}
 
 /* Match the AI-PLAT platform's teal-to-blue wordmark and primary action treatment. */
-.platform-link{border:0;background:linear-gradient(90deg,var(--teal),var(--brand));box-shadow:0 5px 12px rgba(71,138,229,.18);color:#fff}.platform-link:hover{border-color:transparent;color:#fff;box-shadow:0 7px 16px rgba(71,138,229,.28)}.search:focus-within{border-color:#9ed8d4}.doc-tab.active,.doc-tab:hover{color:#3486c9;background:linear-gradient(90deg,#effaf8,#f2f7ff)}.eyebrow{color:var(--teal)}.quick-card:hover{border-color:#b9dcdf;box-shadow:0 12px 30px rgba(52,147,174,.09)}.card-number{color:#398ea6}.overview-note{background:#f7fbfb}.search-results{border-color:#cfe9eb;background:#f6fbfc}.result-item{border-color:#dfedf0}.result-item strong{color:#2e5868}
+.platform-link{border:0;background:linear-gradient(90deg,var(--teal),var(--brand));box-shadow:0 5px 12px rgba(71,138,229,.18);color:#fff}.platform-link:hover{border-color:transparent;color:#fff;box-shadow:0 7px 16px rgba(71,138,229,.28)}.search:focus-within{border-color:#9ed8d4}.doc-tab.active,.doc-tab:hover{color:#3486c9;background:linear-gradient(90deg,#effaf8,#f2f7ff)}.eyebrow{color:var(--teal)}.quick-card:hover{border-color:#b9dcdf;box-shadow:0 12px 30px rgba(52,147,174,.09)}.card-number{color:#398ea6}.overview-note{background:#f7fbfb}.search-results{border-color:#cfe9eb;background:#f6fbfc}.result-item{border-color:#dfedf0}.result-item strong{color:#2e5868}.nav-group{margin:0 0 28px}.nav-group-title{margin:0 8px 9px;color:#334155;font-size:12px;font-weight:800;line-height:1.4}
 `;
 }
 
