@@ -3,7 +3,6 @@ const tabs = Array.from(document.querySelectorAll("[data-doc-target]"));
 const searchInput = document.getElementById("searchInput");
 const searchResults = document.getElementById("searchResults");
 const lightbox = document.getElementById("lightbox");
-const pageToc = document.getElementById("pageToc");
 const sidebar = document.getElementById("sidebar");
 const menuButton = document.getElementById("menuButton");
 const sidebarClose = document.getElementById("sidebarClose");
@@ -15,7 +14,6 @@ function showDoc(slug, shouldFocus = false) {
   const target = panels.find((panel) => panel.dataset.doc === slug) || panels[0];
   panels.forEach((panel) => panel.classList.toggle("active", panel === target));
   tabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.docTarget === target.dataset.doc));
-  renderPageToc(target);
   closeSidebar();
   if (shouldFocus) target.focus({ preventScroll: true });
 }
@@ -38,18 +36,6 @@ tabs.forEach((tab) => {
     showDoc(slug, true);
   });
 });
-
-function renderPageToc(panel) {
-  if (!pageToc || !panel) return;
-  const documentTitle = panel.querySelector("h2")?.textContent || "";
-  const headings = Array.from(panel.querySelectorAll("h2, h3, h4")).filter((heading) => {
-    return heading.textContent !== documentTitle && !/^下一步阅读|^下一步操作|^手册结束说明/.test(heading.textContent);
-  });
-  pageToc.innerHTML = headings.map((heading) => {
-    const level = heading.tagName === "H2" ? "1" : heading.tagName === "H3" ? "2" : "3";
-    return `<a class="level-${level}" href="#${heading.id}">${escapeHtml(heading.textContent)}</a>`;
-  }).join("");
-}
 
 function setSidebar(open) {
   sidebar?.classList.toggle("open", open);
