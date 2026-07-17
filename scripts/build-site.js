@@ -246,18 +246,25 @@ function buildSearchIndex(publicDocs) {
 }
 
 function renderPage(publicDocs) {
-  const navItem = (doc) => {
+  const navItem = (doc, childLinks = "") => {
       const headingLinks = doc.headings
         .filter((heading) => heading.level === 3 || heading.level === 4)
         .slice(0, 14)
         .map((heading) => `<a class="toc-link level-${heading.level}" href="#${heading.id}">${escapeHtml(heading.text)}</a>`)
         .join("");
-      return `<section class="nav-doc"><a class="doc-tab" href="#${doc.slug}" data-doc-target="${doc.slug}"><span>${escapeHtml(doc.subtitle || doc.title)}</span><b>›</b></a><div class="toc">${headingLinks}</div></section>`;
+      return `<section class="nav-doc"><a class="doc-tab" href="#${doc.slug}" data-doc-target="${doc.slug}"><span>${escapeHtml(doc.subtitle || doc.title)}</span><b>›</b></a><div class="toc">${childLinks || headingLinks}</div></section>`;
     };
 
   const nav = Array.from(new Map(publicDocs.map((doc) => [doc.part.number, doc.part])).entries())
     .map(([partNumber]) => {
       const docs = publicDocs.filter((doc) => doc.part.number === partNumber);
+      if (partNumber === "02") {
+        const [overview, ...chapters] = docs;
+        const chapterLinks = chapters
+          .map((doc) => `<a class="toc-link part-chapter-link" href="#${doc.slug}" data-doc-target="${doc.slug}">${escapeHtml(doc.subtitle || doc.title)}</a>`)
+          .join("");
+        return `<section class="nav-group">${navItem(overview, chapterLinks)}</section>`;
+      }
       return `<section class="nav-group">${docs.map(navItem).join("")}</section>`;
     })
     .join("");
@@ -352,7 +359,7 @@ function styles() {
 @media(max-width:520px){.brand-wordmark{font-size:15px}.brand-divider,.brand-label{display:none}.search{width:auto;flex:1}.search kbd{display:none}.search input{font-size:12px}.overview h1{font-size:31px}.overview-copy{font-size:15px}.content{padding:30px 16px 58px}.doc-panel h1{font-size:29px}.doc-panel h2{font-size:21px}.doc-panel h3{font-size:17px}.doc-panel p,.doc-panel li{font-size:14px}}
 
 /* Match the AI-PLAT platform's teal-to-blue wordmark and primary action treatment. */
-.platform-link{border:0;background:linear-gradient(90deg,var(--teal),var(--brand));box-shadow:0 5px 12px rgba(71,138,229,.18);color:#fff}.platform-link:hover{border-color:transparent;color:#fff;box-shadow:0 7px 16px rgba(71,138,229,.28)}.search:focus-within{border-color:#9ed8d4}.doc-tab.active,.doc-tab:hover{color:#3486c9;background:linear-gradient(90deg,#effaf8,#f2f7ff)}.eyebrow{color:var(--teal)}.quick-card:hover{border-color:#b9dcdf;box-shadow:0 12px 30px rgba(52,147,174,.09)}.card-number{color:#398ea6}.overview-note{background:#f7fbfb}.search-results{border-color:#cfe9eb;background:#f6fbfc}.result-item{border-color:#dfedf0}.result-item strong{color:#2e5868}.nav-group{margin:0 0 28px}
+.platform-link{border:0;background:linear-gradient(90deg,var(--teal),var(--brand));box-shadow:0 5px 12px rgba(71,138,229,.18);color:#fff}.platform-link:hover{border-color:transparent;color:#fff;box-shadow:0 7px 16px rgba(71,138,229,.28)}.search:focus-within{border-color:#9ed8d4}.doc-tab.active,.doc-tab:hover{color:#3486c9;background:linear-gradient(90deg,#effaf8,#f2f7ff)}.toc-link.active{color:var(--brand);font-weight:700}.part-chapter-link{padding:5px 0;font-size:13px}.eyebrow{color:var(--teal)}.quick-card:hover{border-color:#b9dcdf;box-shadow:0 12px 30px rgba(52,147,174,.09)}.card-number{color:#398ea6}.overview-note{background:#f7fbfb}.search-results{border-color:#cfe9eb;background:#f6fbfc}.result-item{border-color:#dfedf0}.result-item strong{color:#2e5868}.nav-group{margin:0 0 28px}
 `;
 }
 
