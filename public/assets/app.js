@@ -41,8 +41,8 @@ tabs.forEach((tab) => {
 
 function renderPageToc(panel) {
   if (!pageToc || !panel) return;
-  const headings = Array.from(panel.querySelectorAll("h2, h3"));
-  pageToc.innerHTML = headings.map((heading) => `<a class="level-${heading.tagName === "H3" ? "3" : "2"}" href="#${heading.id}">${escapeHtml(heading.textContent)}</a>`).join("");
+  const headings = Array.from(panel.querySelectorAll("h3, h4"));
+  pageToc.innerHTML = headings.map((heading) => `<a class="level-${heading.tagName === "H4" ? "3" : "2"}" href="#${heading.id}">${escapeHtml(heading.textContent)}</a>`).join("");
 }
 
 function setSidebar(open) {

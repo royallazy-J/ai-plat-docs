@@ -237,8 +237,8 @@ function renderPage(publicDocs) {
   const nav = publicDocs
     .map((doc) => {
       const headingLinks = doc.headings
-        .filter((heading) => heading.level === 2 || heading.level === 3)
-        .slice(0, 16)
+        .filter((heading) => heading.level === 3 || heading.level === 4)
+        .slice(0, 14)
         .map((heading) => `<a class="toc-link level-${heading.level}" href="#${heading.id}">${escapeHtml(heading.text)}</a>`)
         .join("");
       return `<section class="nav-doc"><a class="doc-tab" href="#${doc.slug}" data-doc-target="${doc.slug}"><span>${escapeHtml(doc.subtitle || doc.title)}</span><b>›</b></a><div class="toc">${headingLinks}</div></section>`;
@@ -383,8 +383,8 @@ tabs.forEach((tab) => {
 
 function renderPageToc(panel) {
   if (!pageToc || !panel) return;
-  const headings = Array.from(panel.querySelectorAll("h2, h3"));
-  pageToc.innerHTML = headings.map((heading) => \`<a class="level-\${heading.tagName === "H3" ? "3" : "2"}" href="#\${heading.id}">\${escapeHtml(heading.textContent)}</a>\`).join("");
+  const headings = Array.from(panel.querySelectorAll("h3, h4"));
+  pageToc.innerHTML = headings.map((heading) => \`<a class="level-\${heading.tagName === "H4" ? "3" : "2"}" href="#\${heading.id}">\${escapeHtml(heading.textContent)}</a>\`).join("");
 }
 
 function setSidebar(open) {
