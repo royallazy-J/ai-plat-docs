@@ -496,19 +496,83 @@ searchInput?.addEventListener("input", () => {
   const terms = query.split(/\\s+/).filter(Boolean);
   const matches = searchIndex
     .map((doc) => {
-      const haystack = [doc.title, doc.subtitle, doc.summary, doc.text].join(" ").toLowerCase();
-      const score = terms.reduce((sum, term) => sum + (haystack.includes(term) ? 1 : 0), 0);
-      return { doc, score };
+      const headingMatch = doc.headings
+        .map((heading) => ({ heading, score: scoreText(heading.text, terms) * 7 }))
+        .sort((a, b) => b.score - a.score)[0];
+      const score = Math.max(
+        scoreText(doc.subtitle || doc.title, terms) * 9,
+        headingMatch?.score || 0,
+        scoreText(doc.summary, terms) * 4,
+        scoreText(doc.text, terms)
+      );
+      return { doc, score, heading: headingMatch?.score ? headingMatch.heading : null };
     })
     .filter((item) => item.score > 0)
     .sort((a, b) => b.score - a.score)
-    .slice(0, 6);
+    .slice(0, 5);
 
   searchResults.hidden = false;
   searchResults.innerHTML = matches.length
-    ? "<strong>搜索结果</strong>" + matches.map(({ doc }) => \`<a class="result-item" href="#\${doc.slug}" data-doc-target="\${doc.slug}"><strong>\${escapeHtml(doc.subtitle || doc.title)}</strong><span>\${highlight(doc.summary, terms)}</span></a>\`).join("")
+    ? "<strong>搜索结果</strong>" + matches.map(({ doc, heading }) => {
+      const target = heading?.id || doc.slug;
+      const preview = heading ? \`章节：\${heading.text}\` : searchPreview(doc.summary || doc.text, terms);
+      return \`<a class="result-item" href="#\${target}" data-doc-target="\${doc.slug}" data-section-target="\${heading?.id || ""}"><strong>\${escapeHtml(doc.subtitle || doc.title)}</strong><span>\${highlight(preview, terms)}</span></a>\`;
+    }).join("")
     : "<strong>未找到匹配结果</strong><p>可以尝试输入功能名称、页面入口或操作关键词。</p>";
+
+  searchResults.querySelectorAll(".result-item").forEach((result) => {
+    result.addEventListener("click", () => {
+      const target = result.dataset.sectionTarget || result.dataset.docTarget;
+      showDoc(result.dataset.docTarget, true);
+      requestAnimationFrame(() => document.getElementById(target)?.scrollIntoView({ block: "start" }));
+      searchInput.value = "";
+      searchResults.hidden = true;
+      searchResults.innerHTML = "";
+    });
+  });
 });
+
+function scoreText(text, terms) {
+  const source = normalizeSearch(text);
+  if (!source) return 0;
+
+  let total = 0;
+  for (const term of terms) {
+    const score = fuzzyScore(source, normalizeSearch(term));
+    if (!score) return 0;
+    total += score;
+  }
+  return total;
+}
+
+function fuzzyScore(source, term) {
+  if (!term) return 0;
+  const directIndex = source.indexOf(term);
+  if (directIndex >= 0) return 100 + term.length * 8 - Math.min(directIndex, 80) / 8;
+
+  let cursor = 0;
+  let gaps = 0;
+  for (const character of term) {
+    const foundAt = source.indexOf(character, cursor);
+    if (foundAt < 0) return 0;
+    gaps += foundAt - cursor;
+    cursor = foundAt + 1;
+  }
+  return Math.max(12, 50 + term.length * 5 - Math.min(gaps, 38));
+}
+
+function normalizeSearch(value) {
+  return String(value || "").toLowerCase().replace(/[^\\p{Letter}\\p{Number}]+/gu, "");
+}
+
+function searchPreview(text, terms) {
+  const source = String(text || "").replace(/\\s+/g, " ").trim();
+  const lowered = source.toLowerCase();
+  const position = terms.map((term) => lowered.indexOf(term)).find((index) => index >= 0) || 0;
+  const start = Math.max(0, position - 26);
+  const end = Math.min(source.length, position + 92);
+  return \`\${start ? "…" : ""}\${source.slice(start, end)}\${end < source.length ? "…" : ""}\`;
+}
 
 document.addEventListener("click", (event) => {
   const imageButton = event.target.closest(".image-button");
