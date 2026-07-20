@@ -13,7 +13,8 @@ if (!fs.existsSync(publicDir)) {
 fs.rmSync(releaseDir, { recursive: true, force: true });
 fs.mkdirSync(releaseDir, { recursive: true });
 fs.cpSync(publicDir, path.join(releaseDir, "site"), { recursive: true });
-fs.copyFileSync(path.join(deploymentDir, "nginx.conf"), path.join(releaseDir, "nginx.conf"));
+fs.cpSync(deploymentDir, path.join(releaseDir, "deployment"), { recursive: true });
+fs.copyFileSync(path.join(root, "Dockerfile"), path.join(releaseDir, "Dockerfile"));
 fs.copyFileSync(path.join(deploymentDir, "README.md"), path.join(releaseDir, "README.md"));
 
 console.log(`Offline package created at ${releaseDir}`);

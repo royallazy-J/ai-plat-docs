@@ -20,7 +20,8 @@ release/ai-plat-docs-offline/
 其中：
 
 - `site/`：需要部署的网站文件
-- `nginx.conf`：Nginx 配置模板
+- `deployment/nginx.conf`：传统 Nginx 配置模板
+- `Dockerfile` 与 `deployment/k8s/`：容器化和 Kubernetes 部署资料
 - `README.md`：本说明
 
 在 Windows PowerShell 中，可使用：
@@ -49,6 +50,20 @@ nginx -s reload
 1. 在 IIS 新建网站，将“物理路径”指向 `site/` 文件夹。
 2. 绑定客户内网域名或服务器 IP 与端口。
 3. 使用浏览器打开该内网地址验证首页、文档目录、搜索和图片。
+
+## 4. Kubernetes 部署
+
+Kubernetes 部署文件位于：
+
+```text
+deployment/k8s/
+```
+
+请先阅读：
+
+```text
+deployment/k8s/README.md
+```
 
 ## 注意事项
 
