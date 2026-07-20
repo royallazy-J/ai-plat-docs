@@ -110,8 +110,7 @@ searchInput?.addEventListener("input", () => {
       return { doc, score, heading: headingMatch?.score ? headingMatch.heading : null };
     })
     .filter((item) => item.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 5);
+    .sort((a, b) => b.score - a.score);
 
   searchResults.hidden = false;
   searchResults.innerHTML = matches.length
@@ -132,6 +131,12 @@ searchInput?.addEventListener("input", () => {
       searchResults.innerHTML = "";
     });
   });
+});
+
+document.addEventListener("click", (event) => {
+  if (!event.target.closest(".search-wrap")) {
+    searchResults.hidden = true;
+  }
 });
 
 function scoreText(text, terms) {
@@ -203,6 +208,10 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && !lightbox.hidden) {
     lightbox.hidden = true;
     lightbox.querySelector("img").src = "";
+  }
+  if (event.key === "Escape" && !searchResults.hidden) {
+    searchResults.hidden = true;
+    searchInput?.blur();
   }
 });
 
