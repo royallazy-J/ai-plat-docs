@@ -22,6 +22,7 @@ if (!docs.length) {
 resetDir(publicDir);
 copyDir(imageSourceDir, imageTargetDir);
 writeFile("index.html", renderLandingPage());
+writeFile("documentation/index.html", renderDocumentationNavigation(docs));
 writeFile("docs/index.html", renderPage(docs));
 writeFile("assets/styles.css", styles());
 writeFile("assets/landing.css", landingStyles());
@@ -277,7 +278,7 @@ function renderLandingPage() {
       <p>选择入口，继续查阅操作手册或进入 AI-PLAT 平台。</p>
     </section>
     <nav class="entry-list" aria-label="AI-PLAT 导航入口">
-      <a class="entry-link docs-entry" href="/docs/">
+      <a class="entry-link docs-entry" href="/documentation/">
         <span class="entry-icon" aria-hidden="true">01</span>
         <span class="entry-copy"><strong>AI-PLAT 使用文档</strong><small>查阅平台功能说明、操作步骤与常见问题</small></span>
         <span class="entry-arrow" aria-hidden="true">→</span>
@@ -291,6 +292,58 @@ function renderLandingPage() {
   </main>
   <footer>AI-PLAT · 用户文档中心</footer>
   <script>if (location.hash) location.replace("/docs/" + location.hash);</script>
+</body>
+</html>`;
+}
+
+function renderDocumentationNavigation(publicDocs) {
+  const visibleHeadings = (doc) => doc.headings
+    .filter((heading) => {
+      const isDocumentTitle = heading.level === 2 && heading.text === doc.subtitle;
+      const isClosingSection = /^下一步阅读|^下一步操作|^手册结束说明/.test(heading.text);
+      return !isDocumentTitle && !isClosingSection && (heading.level === 3 || heading.level === 4);
+    })
+    .slice(0, 14);
+
+  const groups = Array.from(new Map(publicDocs.map((doc) => [doc.part.number, doc.part])).keys())
+    .map((partNumber, index) => {
+      const docs = publicDocs.filter((doc) => doc.part.number === partNumber);
+      const [overview, ...chapters] = docs;
+      const chapterLinks = chapters.map((doc) => {
+        const sectionLinks = visibleHeadings(doc)
+          .map((heading) => `<a class="document-map-link level-${heading.level}" href="/docs/#${heading.id}">${escapeHtml(heading.text)}<span aria-hidden="true">→</span></a>`)
+          .join("");
+        return `<section class="document-map-chapter"><a class="document-map-chapter-title" href="/docs/#${doc.slug}">${escapeHtml(doc.subtitle || doc.title)}<span aria-hidden="true">→</span></a>${sectionLinks ? `<div class="document-map-sections">${sectionLinks}</div>` : ""}</section>`;
+      }).join("");
+      return `<section class="document-map-group"><a class="document-map-part" href="/docs/#${overview.slug}"><span class="document-map-number">0${index + 1}</span><span>${escapeHtml(overview.subtitle || overview.title)}</span><b aria-hidden="true">→</b></a><div class="document-map-tree">${chapterLinks}</div></section>`;
+    }).join("");
+
+  return `<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AI-PLAT 使用文档目录。">
+  <title>AI-PLAT 使用文档</title>
+  <link rel="stylesheet" href="/assets/landing.css">
+</head>
+<body>
+  <header class="landing-header">
+    <div class="landing-brand" aria-label="AI-PLAT">
+      <span class="landing-mark">AI-PLAT</span>
+      <span class="landing-divider"></span>
+      <span class="landing-label">使用文档</span>
+    </div>
+  </header>
+  <main>
+    <section class="landing-hero document-map-hero" aria-labelledby="document-map-title">
+      <p class="landing-eyebrow">AI-PLAT DOCUMENTATION</p>
+      <h1 id="document-map-title">选择要阅读的内容</h1>
+      <p>目录层级与文档左侧导航一致。点击任一部分、章节或操作小节，即可直接进入对应内容。</p>
+    </section>
+    <nav class="document-map" aria-label="AI-PLAT 文档目录">${groups}</nav>
+  </main>
+  <footer>AI-PLAT · 用户文档中心</footer>
 </body>
 </html>`;
 }
@@ -372,7 +425,7 @@ function renderPage(publicDocs) {
   <div class="reading-progress" aria-hidden="true"><span id="readingProgress"></span></div>
   <header class="topbar">
     <button class="menu-button" id="menuButton" type="button" aria-label="打开文档目录" aria-expanded="false">☰</button>
-    <a class="brand" href="#doc-1" data-doc-target="doc-1" aria-label="AI-PLAT 文档首页">
+    <a class="brand" href="/documentation/" aria-label="返回文档目录">
       <span class="brand-wordmark">AI-PLAT</span>
       <span class="brand-divider"></span>
       <span class="brand-label">用户文档</span>
@@ -448,7 +501,7 @@ function styles() {
 }
 
 function landingStyles() {
-  return `:root{--ink:#1d2432;--muted:#6e7c90;--line:#e3e8ee;--teal:#50b69f;--blue:#478ae5;--canvas:#f8fafb}*{box-sizing:border-box}body{min-height:100vh;margin:0;color:var(--ink);background:var(--canvas);font-family:Inter,"PingFang SC","Microsoft YaHei",Arial,sans-serif}.landing-header{height:72px;display:flex;align-items:center;padding:0 clamp(24px,7vw,112px);border-bottom:1px solid var(--line);background:#fff}.landing-brand{display:flex;align-items:center;gap:11px}.landing-mark{color:#328ba0;font-size:17px;font-weight:800;letter-spacing:.12em}.landing-divider{width:1px;height:18px;background:#dbe2e8}.landing-label{color:#667386;font-size:13px;font-weight:650}main{width:min(800px,calc(100% - 40px));margin:0 auto}.landing-hero{padding:clamp(80px,15vh,152px) 0 46px}.landing-eyebrow{margin:0 0 14px;color:#3d9d93;font-size:11px;font-weight:800;letter-spacing:.12em}.landing-hero h1{margin:0;color:#172033;font-size:clamp(36px,5vw,52px);line-height:1.16;letter-spacing:0}.landing-hero p:not(.landing-eyebrow){max-width:500px;margin:18px 0 0;color:var(--muted);font-size:17px;line-height:1.75}.entry-list{border-top:1px solid var(--line);background:#fff}.entry-link{display:grid;grid-template-columns:54px minmax(0,1fr) 28px;align-items:center;gap:18px;min-height:108px;padding:22px;border-bottom:1px solid var(--line);color:inherit;text-decoration:none;transition:background .18s,border-color .18s}.entry-link:hover{background:#f3faf9}.entry-link:focus-visible{position:relative;z-index:1;outline:3px solid #bde4df;outline-offset:-3px}.entry-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:7px;color:#33879a;background:#edf8f7;font-size:12px;font-weight:800}.platform-entry .entry-icon{color:#377ec9;background:#f0f5ff}.entry-copy{min-width:0}.entry-copy strong{display:block;color:#26354a;font-size:16px;line-height:1.45}.entry-copy small{display:block;margin-top:4px;color:var(--muted);font-size:13px;line-height:1.55}.entry-arrow{justify-self:end;color:#4b9eaf;font-size:22px;transition:transform .18s}.platform-entry .entry-arrow{color:var(--blue)}.entry-link:hover .entry-arrow{transform:translateX(4px)}footer{width:min(800px,calc(100% - 40px));margin:46px auto 34px;color:#98a3b1;font-size:12px}@media(max-width:560px){.landing-header{height:62px;padding:0 20px}.landing-label{font-size:12px}.landing-hero{padding:76px 0 36px}.landing-hero p:not(.landing-eyebrow){font-size:15px}.entry-link{grid-template-columns:42px minmax(0,1fr) 20px;gap:13px;min-height:96px;padding:17px}.entry-icon{width:36px;height:36px}.entry-copy strong{font-size:15px}.entry-copy small{font-size:12px}.entry-arrow{font-size:19px}}`;
+  return `:root{--ink:#1d2432;--muted:#6e7c90;--line:#e3e8ee;--teal:#50b69f;--blue:#478ae5;--canvas:#f8fafb}*{box-sizing:border-box}body{min-height:100vh;margin:0;color:var(--ink);background:var(--canvas);font-family:Inter,"PingFang SC","Microsoft YaHei",Arial,sans-serif}.landing-header{height:72px;display:flex;align-items:center;padding:0 clamp(24px,7vw,112px);border-bottom:1px solid var(--line);background:#fff}.landing-brand{display:flex;align-items:center;gap:11px}.landing-mark{color:#328ba0;font-size:17px;font-weight:800;letter-spacing:.12em}.landing-divider{width:1px;height:18px;background:#dbe2e8}.landing-label{color:#667386;font-size:13px;font-weight:650}main{width:min(800px,calc(100% - 40px));margin:0 auto}.landing-hero{padding:clamp(80px,15vh,152px) 0 46px}.landing-eyebrow{margin:0 0 14px;color:#3d9d93;font-size:11px;font-weight:800;letter-spacing:.12em}.landing-hero h1{margin:0;color:#172033;font-size:clamp(36px,5vw,52px);line-height:1.16;letter-spacing:0}.landing-hero p:not(.landing-eyebrow){max-width:500px;margin:18px 0 0;color:var(--muted);font-size:17px;line-height:1.75}.entry-list{border-top:1px solid var(--line);background:#fff}.entry-link{display:grid;grid-template-columns:54px minmax(0,1fr) 28px;align-items:center;gap:18px;min-height:108px;padding:22px;border-bottom:1px solid var(--line);color:inherit;text-decoration:none;transition:background .18s,border-color .18s}.entry-link:hover{background:#f3faf9}.entry-link:focus-visible{position:relative;z-index:1;outline:3px solid #bde4df;outline-offset:-3px}.entry-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:7px;color:#33879a;background:#edf8f7;font-size:12px;font-weight:800}.platform-entry .entry-icon{color:#377ec9;background:#f0f5ff}.entry-copy{min-width:0}.entry-copy strong{display:block;color:#26354a;font-size:16px;line-height:1.45}.entry-copy small{display:block;margin-top:4px;color:var(--muted);font-size:13px;line-height:1.55}.entry-arrow{justify-self:end;color:#4b9eaf;font-size:22px;transition:transform .18s}.platform-entry .entry-arrow{color:var(--blue)}.entry-link:hover .entry-arrow{transform:translateX(4px)}.document-map-hero{padding-bottom:34px}.document-map{border-top:1px solid var(--line);background:#fff}.document-map-group{border-bottom:1px solid var(--line)}.document-map-part{display:grid;grid-template-columns:54px minmax(0,1fr) 28px;align-items:center;gap:18px;padding:19px 22px;color:#24364b;font-size:16px;font-weight:780;line-height:1.45;text-decoration:none}.document-map-part:hover{background:#f3faf9}.document-map-number{display:grid;place-items:center;width:42px;height:42px;border-radius:7px;color:#33879a;background:#edf8f7;font-size:12px;font-weight:800}.document-map-part b{justify-self:end;color:#439ba8;font-size:20px;font-weight:500}.document-map-tree{margin:0 22px 20px 43px;padding:2px 0 4px 21px;border-left:1px solid #dce8ea}.document-map-chapter{padding:9px 0}.document-map-chapter-title{display:flex;align-items:center;justify-content:space-between;gap:15px;color:#34465c;font-size:14px;font-weight:760;line-height:1.5;text-decoration:none}.document-map-chapter-title span{color:#5ba5b0;font-size:16px}.document-map-chapter-title:hover,.document-map-link:hover{color:#358cad}.document-map-sections{margin:5px 0 0 12px;padding-left:14px;border-left:1px solid #edf1f3}.document-map-link{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 0;color:#748195;font-size:13px;line-height:1.5;text-decoration:none}.document-map-link span{color:#9aa9b6;font-size:14px}.document-map-link.level-4{padding-left:12px;font-size:12px}footer{width:min(800px,calc(100% - 40px));margin:46px auto 34px;color:#98a3b1;font-size:12px}@media(max-width:560px){.landing-header{height:62px;padding:0 20px}.landing-label{font-size:12px}.landing-hero{padding:76px 0 36px}.landing-hero p:not(.landing-eyebrow){font-size:15px}.entry-link{grid-template-columns:42px minmax(0,1fr) 20px;gap:13px;min-height:96px;padding:17px}.entry-icon{width:36px;height:36px}.entry-copy strong{font-size:15px}.entry-copy small{font-size:12px}.entry-arrow{font-size:19px}.document-map-part{grid-template-columns:42px minmax(0,1fr) 20px;gap:13px;padding:16px}.document-map-number{width:36px;height:36px}.document-map-tree{margin:0 16px 17px 30px;padding-left:16px}.document-map-chapter-title{font-size:13px}.document-map-link{font-size:12px}}`;
 }
 
 function appScript() {
