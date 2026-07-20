@@ -7,7 +7,7 @@ const imageSourceDir = path.join(root, "images");
 const imageTargetDir = path.join(publicDir, "images");
 
 const excludedDocs = new Set(["README.md", "账号密码信息.md"]);
-const platformUrl = readPlatformUrl();
+const platformUrl = readPlatformUrl() || "http://117.143.89.78:30000/";
 
 const docs = fs
   .readdirSync(root)
@@ -21,12 +21,14 @@ if (!docs.length) {
 
 resetDir(publicDir);
 copyDir(imageSourceDir, imageTargetDir);
-writeFile("index.html", renderPage(docs));
+writeFile("index.html", renderLandingPage());
+writeFile("docs/index.html", renderPage(docs));
 writeFile("assets/styles.css", styles());
+writeFile("assets/landing.css", landingStyles());
 writeFile("assets/app.js", appScript());
 writeFile("search-index.json", JSON.stringify(buildSearchIndex(docs), null, 2));
 
-console.log(`Built ${docs.length} public documents into ${publicDir}`);
+console.log(`Built landing page and ${docs.length} public documents into ${publicDir}`);
 
 function readPlatformUrl() {
   const accountFile = path.join(root, "账号密码信息.md");
@@ -208,7 +210,8 @@ function inline(value) {
 
   html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, src) => {
     const cleanSrc = src.replace(/^\.?\//, "");
-    return `<figure><button class="image-button" type="button" data-image="${escapeAttr(cleanSrc)}" data-alt="${escapeAttr(alt)}"><img src="${escapeAttr(cleanSrc)}" alt="${escapeAttr(alt)}" loading="lazy"></button><figcaption>${escapeHtml(alt)}</figcaption></figure>`;
+    const publicSrc = /^(https?:|data:)/.test(cleanSrc) ? cleanSrc : `/${cleanSrc}`;
+    return `<figure><button class="image-button" type="button" data-image="${escapeAttr(publicSrc)}" data-alt="${escapeAttr(alt)}"><img src="${escapeAttr(publicSrc)}" alt="${escapeAttr(alt)}" loading="lazy"></button><figcaption>${escapeHtml(alt)}</figcaption></figure>`;
   });
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, `<a href="$2" target="_blank" rel="noopener">$1</a>`);
   html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
@@ -247,6 +250,49 @@ function buildSearchIndex(publicDocs) {
     headings,
     text
   }));
+}
+
+function renderLandingPage() {
+  return `<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AI-PLAT 文档与平台入口。">
+  <title>AI-PLAT 帮助中心</title>
+  <link rel="stylesheet" href="/assets/landing.css">
+</head>
+<body>
+  <header class="landing-header">
+    <div class="landing-brand" aria-label="AI-PLAT">
+      <span class="landing-mark">AI-PLAT</span>
+      <span class="landing-divider"></span>
+      <span class="landing-label">帮助中心</span>
+    </div>
+  </header>
+  <main>
+    <section class="landing-hero" aria-labelledby="landing-title">
+      <p class="landing-eyebrow">AI-PLAT SUPPORT</p>
+      <h1 id="landing-title">需要前往哪里？</h1>
+      <p>选择入口，继续查阅操作手册或进入 AI-PLAT 平台。</p>
+    </section>
+    <nav class="entry-list" aria-label="AI-PLAT 导航入口">
+      <a class="entry-link docs-entry" href="/docs/">
+        <span class="entry-icon" aria-hidden="true">01</span>
+        <span class="entry-copy"><strong>AI-PLAT 使用文档</strong><small>查阅平台功能说明、操作步骤与常见问题</small></span>
+        <span class="entry-arrow" aria-hidden="true">→</span>
+      </a>
+      <a class="entry-link platform-entry" href="${escapeAttr(platformUrl)}" target="_blank" rel="noopener">
+        <span class="entry-icon" aria-hidden="true">02</span>
+        <span class="entry-copy"><strong>进入 AI-PLAT 平台</strong><small>打开平台，开始项目与 AI 生产工作</small></span>
+        <span class="entry-arrow" aria-hidden="true">↗</span>
+      </a>
+    </nav>
+  </main>
+  <footer>AI-PLAT · 用户文档中心</footer>
+  <script>if (location.hash) location.replace("/docs/" + location.hash);</script>
+</body>
+</html>`;
 }
 
 function renderPage(publicDocs) {
@@ -320,7 +366,7 @@ function renderPage(publicDocs) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AI-PLAT 用户文档中心</title>
   <meta name="description" content="AI-PLAT 平台用户手册、核心功能操作指南和场景支持附录。">
-  <link rel="stylesheet" href="assets/styles.css">
+  <link rel="stylesheet" href="/assets/styles.css">
 </head>
 <body>
   <div class="reading-progress" aria-hidden="true"><span id="readingProgress"></span></div>
@@ -374,7 +420,7 @@ function renderPage(publicDocs) {
     <p></p>
   </div>
 
-  <script src="assets/app.js"></script>
+  <script src="/assets/app.js"></script>
 </body>
 </html>`;
 }
@@ -399,6 +445,10 @@ function styles() {
 .platform-link{border:0;background:linear-gradient(90deg,var(--teal),var(--brand));box-shadow:0 5px 12px rgba(71,138,229,.18);color:#fff}.platform-link:hover{border-color:transparent;color:#fff;box-shadow:0 7px 16px rgba(71,138,229,.28)}.search:focus-within{border-color:#9ed8d4}.doc-tab.active,.doc-tab:hover{color:#3486c9;background:linear-gradient(90deg,#effaf8,#f2f7ff)}.toc-section-link{display:block;margin:11px 0 4px;color:#3c4b61;font-size:12px;font-weight:800;line-height:1.45}.toc-section-link:hover,.toc-section-link.active{color:var(--brand)}.toc-link.active{color:var(--brand);font-weight:700}.part-chapter-link{padding:0;font-size:12px}.page-toc a.level-1{margin-top:10px;color:#4b5565;font-weight:750}.page-toc a.level-2{padding-left:8px}.eyebrow{color:var(--teal)}.quick-card:hover{border-color:#b9dcdf;box-shadow:0 12px 30px rgba(52,147,174,.09)}.card-number{color:#398ea6}.overview-note{background:#f7fbfb}.search-results{border-color:#cfe9eb;background:#f6fbfc}.result-item{border-color:#dfedf0}.result-item strong{color:#2e5868}.nav-group{margin:0 0 28px}
 .nav-row{display:flex;align-items:center;gap:2px}.nav-row .doc-tab{flex:1;min-width:0}.nav-row .toc-section-link{flex:1;min-width:0;margin:11px 0 4px}.nav-toggle{display:grid;flex:0 0 26px;place-items:center;width:26px;height:26px;padding:0;border:0;border-radius:5px;color:#8090a3;background:transparent;cursor:pointer}.nav-toggle:hover{color:var(--brand);background:var(--brand-soft)}.nav-toggle span{font-size:15px;line-height:1;transition:transform .18s}.nav-toggle[aria-expanded="false"] span{transform:rotate(-90deg)}.nav-children[hidden]{display:none}.nav-chapter{margin:0}.nav-subsections{margin-top:2px;margin-bottom:8px}.nav-group{margin:0 0 28px}
 `;
+}
+
+function landingStyles() {
+  return `:root{--ink:#1d2432;--muted:#6e7c90;--line:#e3e8ee;--teal:#50b69f;--blue:#478ae5;--canvas:#f8fafb}*{box-sizing:border-box}body{min-height:100vh;margin:0;color:var(--ink);background:var(--canvas);font-family:Inter,"PingFang SC","Microsoft YaHei",Arial,sans-serif}.landing-header{height:72px;display:flex;align-items:center;padding:0 clamp(24px,7vw,112px);border-bottom:1px solid var(--line);background:#fff}.landing-brand{display:flex;align-items:center;gap:11px}.landing-mark{color:#328ba0;font-size:17px;font-weight:800;letter-spacing:.12em}.landing-divider{width:1px;height:18px;background:#dbe2e8}.landing-label{color:#667386;font-size:13px;font-weight:650}main{width:min(800px,calc(100% - 40px));margin:0 auto}.landing-hero{padding:clamp(80px,15vh,152px) 0 46px}.landing-eyebrow{margin:0 0 14px;color:#3d9d93;font-size:11px;font-weight:800;letter-spacing:.12em}.landing-hero h1{margin:0;color:#172033;font-size:clamp(36px,5vw,52px);line-height:1.16;letter-spacing:0}.landing-hero p:not(.landing-eyebrow){max-width:500px;margin:18px 0 0;color:var(--muted);font-size:17px;line-height:1.75}.entry-list{border-top:1px solid var(--line);background:#fff}.entry-link{display:grid;grid-template-columns:54px minmax(0,1fr) 28px;align-items:center;gap:18px;min-height:108px;padding:22px;border-bottom:1px solid var(--line);color:inherit;text-decoration:none;transition:background .18s,border-color .18s}.entry-link:hover{background:#f3faf9}.entry-link:focus-visible{position:relative;z-index:1;outline:3px solid #bde4df;outline-offset:-3px}.entry-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:7px;color:#33879a;background:#edf8f7;font-size:12px;font-weight:800}.platform-entry .entry-icon{color:#377ec9;background:#f0f5ff}.entry-copy{min-width:0}.entry-copy strong{display:block;color:#26354a;font-size:16px;line-height:1.45}.entry-copy small{display:block;margin-top:4px;color:var(--muted);font-size:13px;line-height:1.55}.entry-arrow{justify-self:end;color:#4b9eaf;font-size:22px;transition:transform .18s}.platform-entry .entry-arrow{color:var(--blue)}.entry-link:hover .entry-arrow{transform:translateX(4px)}footer{width:min(800px,calc(100% - 40px));margin:46px auto 34px;color:#98a3b1;font-size:12px}@media(max-width:560px){.landing-header{height:62px;padding:0 20px}.landing-label{font-size:12px}.landing-hero{padding:76px 0 36px}.landing-hero p:not(.landing-eyebrow){font-size:15px}.entry-link{grid-template-columns:42px minmax(0,1fr) 20px;gap:13px;min-height:96px;padding:17px}.entry-icon{width:36px;height:36px}.entry-copy strong{font-size:15px}.entry-copy small{font-size:12px}.entry-arrow{font-size:19px}}`;
 }
 
 function appScript() {
@@ -506,7 +556,7 @@ menuButton?.addEventListener("click", () => setSidebar(!sidebar.classList.contai
 sidebarClose?.addEventListener("click", closeSidebar);
 sidebarScrim?.addEventListener("click", closeSidebar);
 
-fetch("search-index.json")
+fetch("/search-index.json")
   .then((response) => response.json())
   .then((data) => {
     searchIndex = data;

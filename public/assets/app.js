@@ -102,7 +102,7 @@ menuButton?.addEventListener("click", () => setSidebar(!sidebar.classList.contai
 sidebarClose?.addEventListener("click", closeSidebar);
 sidebarScrim?.addEventListener("click", closeSidebar);
 
-fetch("search-index.json")
+fetch("/search-index.json")
   .then((response) => response.json())
   .then((data) => {
     searchIndex = data;
