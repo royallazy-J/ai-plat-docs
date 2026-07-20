@@ -7,7 +7,7 @@ const imageSourceDir = path.join(root, "images");
 const imageTargetDir = path.join(publicDir, "images");
 
 const excludedDocs = new Set(["README.md", "账号密码信息.md"]);
-const platformUrl = process.env.PLATFORM_URL || readPlatformUrl() || "http://117.143.89.78:30000/";
+const platformUrl = process.env.PLATFORM_URL || readSiteConfig().platformUrl || readPlatformUrl() || "http://117.143.89.78:30000/";
 
 const docs = fs
   .readdirSync(root)
@@ -37,6 +37,18 @@ function readPlatformUrl() {
   const text = fs.readFileSync(accountFile, "utf8");
   const match = text.match(/https?:\/\/[^\s)）]+/);
   return match ? match[0] : "";
+}
+
+function readSiteConfig() {
+  const configFile = path.join(root, "config", "site.json");
+  if (!fs.existsSync(configFile)) return {};
+
+  try {
+    const config = JSON.parse(fs.readFileSync(configFile, "utf8"));
+    return typeof config.platformUrl === "string" ? config : {};
+  } catch (error) {
+    throw new Error(`无法读取 config/site.json：${error.message}`);
+  }
 }
 
 function readDoc(file, index) {

@@ -80,3 +80,15 @@ npm run build
 ## 公开内容说明
 
 `账号密码信息.md` 不会进入公开站点。构建脚本只会读取其中的平台访问地址，用于页面右上角“进入平台”按钮，不会发布账号或密码。
+
+## 平台地址配置
+
+日常修改平台入口地址时，直接编辑 `config/site.json`：
+
+```json
+{
+  "platformUrl": "https://new-platform.example.com/"
+}
+```
+
+保存后执行 `npm run build`，再推送 GitHub 即可发布。离线打包时，`PLATFORM_URL` 环境变量会临时覆盖此配置。
