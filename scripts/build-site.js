@@ -7,7 +7,7 @@ const imageSourceDir = path.join(root, "images");
 const imageTargetDir = path.join(publicDir, "images");
 
 const excludedDocs = new Set(["README.md", "账号密码信息.md"]);
-const platformUrl = readPlatformUrl() || "http://117.143.89.78:30000/";
+const platformUrl = process.env.PLATFORM_URL || readPlatformUrl() || "http://117.143.89.78:30000/";
 
 const docs = fs
   .readdirSync(root)

@@ -5,6 +5,7 @@
   "description": "AI-PLAT documentation web service",
   "scripts": {
     "build": "node scripts/build-site.js",
+    "package:offline": "node scripts/build-site.js && node scripts/package-offline.js",
     "start": "node server.js",
     "dev": "node scripts/build-site.js && node server.js"
   },
