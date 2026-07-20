@@ -3,6 +3,7 @@ const navDocTabs = Array.from(document.querySelectorAll(".sidebar .doc-tab[data-
 const navChapterLinks = Array.from(document.querySelectorAll(".sidebar .part-chapter-link[data-doc-target]"));
 const navSectionLinks = Array.from(document.querySelectorAll(".sidebar .toc-link[data-section-target]"));
 const docLinks = Array.from(document.querySelectorAll("[data-doc-target]"));
+const navToggles = Array.from(document.querySelectorAll("[data-nav-toggle]"));
 const searchInput = document.getElementById("searchInput");
 const searchResults = document.getElementById("searchResults");
 const lightbox = document.getElementById("lightbox");
@@ -13,6 +14,21 @@ const sidebarScrim = document.getElementById("sidebarScrim");
 const readingProgress = document.getElementById("readingProgress");
 let searchIndex = [];
 let activeSidebarTarget = "";
+
+function setNavExpanded(children, expanded) {
+  if (!children) return;
+  children.hidden = !expanded;
+  navToggles.find((toggle) => toggle.dataset.navToggle === children.id)
+    ?.setAttribute("aria-expanded", String(expanded));
+}
+
+function revealNavLink(link) {
+  let parent = link?.parentElement;
+  while (parent) {
+    if (parent.classList?.contains("nav-children")) setNavExpanded(parent, true);
+    parent = parent.parentElement;
+  }
+}
 
 function showDoc(slug, shouldFocus = false) {
   const target = panels.find((panel) => panel.dataset.doc === slug) || panels[0];
@@ -42,6 +58,7 @@ function syncSidebarSection() {
   const activeLink = currentHeading
     ? navSectionLinks.find((link) => link.dataset.sectionTarget === currentHeading.id)
     : navChapterLinks.find((link) => link.classList.contains("active"));
+  revealNavLink(activeLink);
   const targetId = activeLink?.dataset.sectionTarget || activeLink?.dataset.docTarget || "";
   if (activeLink && targetId !== activeSidebarTarget) {
     activeSidebarTarget = targetId;
@@ -65,6 +82,13 @@ docLinks.forEach((tab) => {
   tab.addEventListener("click", () => {
     const slug = tab.dataset.docTarget;
     showDoc(slug, true);
+  });
+});
+
+navToggles.forEach((toggle) => {
+  toggle.addEventListener("click", () => {
+    const children = document.getElementById(toggle.dataset.navToggle);
+    setNavExpanded(children, children?.hidden);
   });
 });
 

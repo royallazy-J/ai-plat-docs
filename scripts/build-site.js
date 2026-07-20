@@ -250,6 +250,7 @@ function buildSearchIndex(publicDocs) {
 }
 
 function renderPage(publicDocs) {
+  const navToggle = (controls, label) => `<button class="nav-toggle" type="button" aria-expanded="true" aria-controls="${controls}" data-nav-toggle="${controls}" aria-label="${label}"><span>⌄</span></button>`;
   const navItem = (doc, childLinks = "") => {
       const headingLinks = doc.headings
         .filter((heading) => {
@@ -263,7 +264,9 @@ function renderPage(publicDocs) {
           return `<a class="${className}" href="#${heading.id}" data-doc-target="${doc.slug}" data-section-target="${heading.id}">${escapeHtml(heading.text)}</a>`;
         })
         .join("");
-      return `<section class="nav-doc"><a class="doc-tab" href="#${doc.slug}" data-doc-target="${doc.slug}"><span>${escapeHtml(doc.subtitle || doc.title)}</span><b>›</b></a><div class="toc">${childLinks || headingLinks}</div></section>`;
+      const children = childLinks || headingLinks;
+      const childrenId = `nav-${doc.slug}-children`;
+      return `<section class="nav-doc"><div class="nav-row"><a class="doc-tab" href="#${doc.slug}" data-doc-target="${doc.slug}"><span>${escapeHtml(doc.subtitle || doc.title)}</span></a>${children ? navToggle(childrenId, `折叠 ${escapeAttr(doc.subtitle || doc.title)}`) : ""}</div>${children ? `<div class="toc nav-children" id="${childrenId}">${children}</div>` : ""}</section>`;
     };
 
   const nav = Array.from(new Map(publicDocs.map((doc) => [doc.part.number, doc.part])).entries())
@@ -282,7 +285,8 @@ function renderPage(publicDocs) {
               .slice(0, 14)
               .map((heading) => `<a class="toc-link level-${heading.level}" href="#${heading.id}" data-doc-target="${doc.slug}" data-section-target="${heading.id}">${escapeHtml(heading.text)}</a>`)
               .join("");
-            return `<a class="toc-section-link part-chapter-link" href="#${doc.slug}" data-doc-target="${doc.slug}">${escapeHtml(doc.subtitle || doc.title)}</a>${sectionLinks}`;
+            const childrenId = `nav-${doc.slug}-children`;
+            return `<section class="nav-chapter"><div class="nav-row"><a class="toc-section-link part-chapter-link" href="#${doc.slug}" data-doc-target="${doc.slug}">${escapeHtml(doc.subtitle || doc.title)}</a>${sectionLinks ? navToggle(childrenId, `折叠 ${escapeAttr(doc.subtitle || doc.title)}`) : ""}</div>${sectionLinks ? `<div class="toc nav-children nav-subsections" id="${childrenId}">${sectionLinks}</div>` : ""}</section>`;
           })
           .join("");
         return `<section class="nav-group">${navItem(overview, chapterLinks)}</section>`;
@@ -393,6 +397,7 @@ function styles() {
 
 /* Match the AI-PLAT platform's teal-to-blue wordmark and primary action treatment. */
 .platform-link{border:0;background:linear-gradient(90deg,var(--teal),var(--brand));box-shadow:0 5px 12px rgba(71,138,229,.18);color:#fff}.platform-link:hover{border-color:transparent;color:#fff;box-shadow:0 7px 16px rgba(71,138,229,.28)}.search:focus-within{border-color:#9ed8d4}.doc-tab.active,.doc-tab:hover{color:#3486c9;background:linear-gradient(90deg,#effaf8,#f2f7ff)}.toc-section-link{display:block;margin:11px 0 4px;color:#3c4b61;font-size:12px;font-weight:800;line-height:1.45}.toc-section-link:hover,.toc-section-link.active{color:var(--brand)}.toc-link.active{color:var(--brand);font-weight:700}.part-chapter-link{padding:0;font-size:12px}.page-toc a.level-1{margin-top:10px;color:#4b5565;font-weight:750}.page-toc a.level-2{padding-left:8px}.eyebrow{color:var(--teal)}.quick-card:hover{border-color:#b9dcdf;box-shadow:0 12px 30px rgba(52,147,174,.09)}.card-number{color:#398ea6}.overview-note{background:#f7fbfb}.search-results{border-color:#cfe9eb;background:#f6fbfc}.result-item{border-color:#dfedf0}.result-item strong{color:#2e5868}.nav-group{margin:0 0 28px}
+.nav-row{display:flex;align-items:center;gap:2px}.nav-row .doc-tab{flex:1;min-width:0}.nav-row .toc-section-link{flex:1;min-width:0;margin:11px 0 4px}.nav-toggle{display:grid;flex:0 0 26px;place-items:center;width:26px;height:26px;padding:0;border:0;border-radius:5px;color:#8090a3;background:transparent;cursor:pointer}.nav-toggle:hover{color:var(--brand);background:var(--brand-soft)}.nav-toggle span{font-size:15px;line-height:1;transition:transform .18s}.nav-toggle[aria-expanded="false"] span{transform:rotate(-90deg)}.nav-children[hidden]{display:none}.nav-chapter{margin:0}.nav-subsections{margin-top:2px;margin-bottom:8px}.nav-group{margin:0 0 28px}
 `;
 }
 
@@ -402,6 +407,7 @@ const navDocTabs = Array.from(document.querySelectorAll(".sidebar .doc-tab[data-
 const navChapterLinks = Array.from(document.querySelectorAll(".sidebar .part-chapter-link[data-doc-target]"));
 const navSectionLinks = Array.from(document.querySelectorAll(".sidebar .toc-link[data-section-target]"));
 const docLinks = Array.from(document.querySelectorAll("[data-doc-target]"));
+const navToggles = Array.from(document.querySelectorAll("[data-nav-toggle]"));
 const searchInput = document.getElementById("searchInput");
 const searchResults = document.getElementById("searchResults");
 const lightbox = document.getElementById("lightbox");
@@ -412,6 +418,21 @@ const sidebarScrim = document.getElementById("sidebarScrim");
 const readingProgress = document.getElementById("readingProgress");
 let searchIndex = [];
 let activeSidebarTarget = "";
+
+function setNavExpanded(children, expanded) {
+  if (!children) return;
+  children.hidden = !expanded;
+  navToggles.find((toggle) => toggle.dataset.navToggle === children.id)
+    ?.setAttribute("aria-expanded", String(expanded));
+}
+
+function revealNavLink(link) {
+  let parent = link?.parentElement;
+  while (parent) {
+    if (parent.classList?.contains("nav-children")) setNavExpanded(parent, true);
+    parent = parent.parentElement;
+  }
+}
 
 function showDoc(slug, shouldFocus = false) {
   const target = panels.find((panel) => panel.dataset.doc === slug) || panels[0];
@@ -441,6 +462,7 @@ function syncSidebarSection() {
   const activeLink = currentHeading
     ? navSectionLinks.find((link) => link.dataset.sectionTarget === currentHeading.id)
     : navChapterLinks.find((link) => link.classList.contains("active"));
+  revealNavLink(activeLink);
   const targetId = activeLink?.dataset.sectionTarget || activeLink?.dataset.docTarget || "";
   if (activeLink && targetId !== activeSidebarTarget) {
     activeSidebarTarget = targetId;
@@ -464,6 +486,13 @@ docLinks.forEach((tab) => {
   tab.addEventListener("click", () => {
     const slug = tab.dataset.docTarget;
     showDoc(slug, true);
+  });
+});
+
+navToggles.forEach((toggle) => {
+  toggle.addEventListener("click", () => {
+    const children = document.getElementById(toggle.dataset.navToggle);
+    setNavExpanded(children, children?.hidden);
   });
 });
 
