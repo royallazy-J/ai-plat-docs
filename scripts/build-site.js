@@ -297,23 +297,12 @@ function renderLandingPage() {
 }
 
 function renderDocumentationNavigation(publicDocs) {
-  const visibleHeadings = (doc) => doc.headings
-    .filter((heading) => {
-      const isDocumentTitle = heading.level === 2 && heading.text === doc.subtitle;
-      const isClosingSection = /^下一步阅读|^下一步操作|^手册结束说明/.test(heading.text);
-      return !isDocumentTitle && !isClosingSection && (heading.level === 3 || heading.level === 4);
-    })
-    .slice(0, 14);
-
   const groups = Array.from(new Map(publicDocs.map((doc) => [doc.part.number, doc.part])).keys())
     .map((partNumber, index) => {
       const docs = publicDocs.filter((doc) => doc.part.number === partNumber);
       const [overview, ...chapters] = docs;
       const chapterLinks = chapters.map((doc) => {
-        const sectionLinks = visibleHeadings(doc)
-          .map((heading) => `<a class="document-map-link level-${heading.level}" href="/docs/#${heading.id}">${escapeHtml(heading.text)}<span aria-hidden="true">→</span></a>`)
-          .join("");
-        return `<section class="document-map-chapter"><a class="document-map-chapter-title" href="/docs/#${doc.slug}">${escapeHtml(doc.subtitle || doc.title)}<span aria-hidden="true">→</span></a>${sectionLinks ? `<div class="document-map-sections">${sectionLinks}</div>` : ""}</section>`;
+        return `<section class="document-map-chapter"><a class="document-map-chapter-title" href="/docs/#${doc.slug}">${escapeHtml(doc.subtitle || doc.title)}<span aria-hidden="true">→</span></a></section>`;
       }).join("");
       return `<section class="document-map-group"><a class="document-map-part" href="/docs/#${overview.slug}"><span class="document-map-number">0${index + 1}</span><span>${escapeHtml(overview.subtitle || overview.title)}</span><b aria-hidden="true">→</b></a><div class="document-map-tree">${chapterLinks}</div></section>`;
     }).join("");
@@ -339,7 +328,7 @@ function renderDocumentationNavigation(publicDocs) {
     <section class="landing-hero document-map-hero" aria-labelledby="document-map-title">
       <p class="landing-eyebrow">AI-PLAT DOCUMENTATION</p>
       <h1 id="document-map-title">选择要阅读的内容</h1>
-      <p>目录层级与文档左侧导航一致。点击任一部分、章节或操作小节，即可直接进入对应内容。</p>
+      <p>按部分和章节快速定位。点击任一项，即可直接进入对应文档内容。</p>
     </section>
     <nav class="document-map" aria-label="AI-PLAT 文档目录">${groups}</nav>
   </main>
